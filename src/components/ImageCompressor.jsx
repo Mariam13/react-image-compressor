@@ -76,13 +76,13 @@ export default class imageCompressor extends React.Component {
                 className="ht"
                 variant="top"
                 src={this.state.originalLink}
-              ></Card.Img>
+              />
             ) : (
               <Card.Img
                 className="ht"
                 variant="top"
                 src="http://navparivartan.in/wp-content/uploads/2018/11/placeholder.png"
-              ></Card.Img>
+              />
             )}
             <div className="d-flex justify-content-center">
               <input
@@ -109,7 +109,7 @@ export default class imageCompressor extends React.Component {
           </div>
 
           <div className="col-xl-4 col-lg-4 col-md-12 col-sm-12 mt-3">
-            <Card.Img variant="top" src={this.state.compressedLink}></Card.Img>
+            <Card.Img variant="top" src={this.state.compressedLink}/>
             {this.state.clicked ? (
               <div className="d-flex justify-content-center">
                 <a
