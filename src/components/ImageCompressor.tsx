@@ -1,43 +1,46 @@
 import React from "react";
-
+import Card from "react-bootstrap/Card";
 import imageCompression from "browser-image-compression";
 
-import Card from "react-bootstrap/Card";
+import {
+  IImageProps,
+  IImageState,
+  IImageOptions,
+} from "@interfaces/IImageCompressor";
 
-export default class imageCompressor extends React.Component {
-  constructor() {
-    super();
+export default class ImageCompressor extends React.Component<
+  IImageProps,
+  IImageState
+> {
+  constructor(props: IImageProps) {
+    super(props);
     this.state = {
       compressedLink:
         "http://navparivartan.in/wp-content/uploads/2018/11/placeholder.png",
-      originalImage: "",
+      originalImage: null,
       originalLink: "",
       clicked: false,
-      uploadImage: false
+      uploadImage: false,
     };
   }
 
-  handle = e => {
-    const imageFile = e.target.files[0];
+  handle = (e: HTMLInputElement) => {
+    const imageFile: File = e.files[0];
     this.setState({
       originalLink: URL.createObjectURL(imageFile),
       originalImage: imageFile,
       outputFileName: imageFile.name,
-      uploadImage: true
+      uploadImage: true,
     });
   };
 
-  changeValue = e => {
-    this.setState({ [e.target.name]: e.target.value });
-  };
-
-  click = e => {
+  click = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
 
-    const options = {
+    const options: IImageOptions = {
       maxSizeMB: 1,
       maxWidthOrHeight: 500,
-      useWebWorker: true
+      useWebWorker: true,
     };
 
     if (options.maxSizeMB >= this.state.originalImage.size / 1024) {
@@ -45,17 +48,17 @@ export default class imageCompressor extends React.Component {
       return 0;
     }
 
-    let output;
-    imageCompression(this.state.originalImage, options).then(x => {
+    let output: File;
+    imageCompression(this.state.originalImage, options).then((x: File) => {
       output = x;
 
-      const downloadLink = URL.createObjectURL(output);
+      const downloadLink: string = URL.createObjectURL(output);
       this.setState({
-        compressedLink: downloadLink
-      });
+        compressedLink: downloadLink,
+      } as IImageState);
     });
 
-    this.setState({ clicked: true });
+    this.setState({ clicked: true } as IImageState);
     return 1;
   };
 
@@ -89,7 +92,7 @@ export default class imageCompressor extends React.Component {
                 type="file"
                 accept="image/*"
                 className="mt-2 btn btn-dark w-75"
-                onChange={e => this.handle(e)}
+                onChange={(e) => this.handle(e?.target)}
               />
             </div>
           </div>
@@ -99,17 +102,15 @@ export default class imageCompressor extends React.Component {
               <button
                 type="button"
                 className=" btn btn-dark"
-                onClick={e => this.click(e)}
+                onClick={(e) => this.click(e)}
               >
                 Compress
               </button>
-            ) : (
-              <></>
-            )}
+            ) : null}
           </div>
 
           <div className="col-xl-4 col-lg-4 col-md-12 col-sm-12 mt-3">
-            <Card.Img variant="top" src={this.state.compressedLink}/>
+            <Card.Img variant="top" src={this.state.compressedLink} />
             {this.state.clicked ? (
               <div className="d-flex justify-content-center">
                 <a
@@ -120,9 +121,7 @@ export default class imageCompressor extends React.Component {
                   Download
                 </a>
               </div>
-            ) : (
-              <></>
-            )}
+            ) : null}
           </div>
         </div>
       </div>

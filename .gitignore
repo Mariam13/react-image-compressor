@@ -21,6 +21,9 @@
 # IDEs and editors
 /.idea
 
+# Next.js
+.next
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

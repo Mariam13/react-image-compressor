@@ -7,16 +7,22 @@
     "airbnb",
     "prettier",
     "plugin:prettier/recommended",
-    "eslint-config-prettier"
+    "eslint-config-prettier",
+    "plugin:@next/next/recommended"
   ],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
   },
-  "parser": "@babel/eslint-parser",
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
+    },
+    "babelOptions": {
+      "parserOpts": {
+        "plugins": ["tsx"]
+      }
     },
     "ecmaVersion": 2018,
     "sourceType": "module",
@@ -26,7 +32,15 @@
   "rules": {
     "no-console": "off",
     "no-alert": "off",
+    "import/no-unresolved": "off",
     "react/destructuring-assignment": 0,
+    "react/jsx-props-no-spreading": "off",
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [".tsx"]
+      }
+    ],
     "react/function-component-definition": [
       2,
       {
