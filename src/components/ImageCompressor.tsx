@@ -1,8 +1,9 @@
 import React from "react";
+import axios from "axios";
 import Card from "react-bootstrap/Card";
 import imageCompression from "browser-image-compression";
 
-import {
+import type {
   IImageProps,
   IImageState,
   IImageOptions,
@@ -14,6 +15,10 @@ export default class ImageCompressor extends React.Component<
 > {
   constructor(props: IImageProps) {
     super(props);
+    this.initState();
+  }
+
+  private initState(): void {
     this.state = {
       compressedLink:
         "http://navparivartan.in/wp-content/uploads/2018/11/placeholder.png",
@@ -24,7 +29,27 @@ export default class ImageCompressor extends React.Component<
     };
   }
 
-  handle = (e: HTMLInputElement) => {
+  private async transferFile(file: File): Promise<void> {
+    const formData: FormData = new FormData();
+    formData.append("file", file);
+    formData.append("name", file.name);
+    formData.append("type", file.type);
+    const result = await axios.post<{ url: string }>(
+      "/api/s3/upload",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    this.setState({
+      compressedLink: result.data.url,
+    } as IImageState);
+    this.setState({ clicked: true } as IImageState);
+  }
+
+  public handle(e: HTMLInputElement) {
     const imageFile: File = e.files[0];
     this.setState({
       originalLink: URL.createObjectURL(imageFile),
@@ -32,9 +57,9 @@ export default class ImageCompressor extends React.Component<
       outputFileName: imageFile.name,
       uploadImage: true,
     });
-  };
+  }
 
-  click = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  public async click(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
 
     const options: IImageOptions = {
@@ -45,22 +70,19 @@ export default class ImageCompressor extends React.Component<
 
     if (options.maxSizeMB >= this.state.originalImage.size / 1024) {
       alert("Image is too small, can't be Compressed!");
-      return 0;
+      return;
     }
 
-    let output: File;
-    imageCompression(this.state.originalImage, options).then((x: File) => {
-      output = x;
-
-      const downloadLink: string = URL.createObjectURL(output);
-      this.setState({
-        compressedLink: downloadLink,
-      } as IImageState);
-    });
-
-    this.setState({ clicked: true } as IImageState);
-    return 1;
-  };
+    try {
+      const file: File = await imageCompression(
+        this.state.originalImage,
+        options
+      );
+      this.transferFile(file);
+    } catch (err) {
+      alert(err);
+    }
+  }
 
   render() {
     return (

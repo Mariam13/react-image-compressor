@@ -10,6 +10,15 @@
       ],
       "@pages/*": [
         "pages/*"
+      ],
+      "@helpers/*": [
+        "helpers/*"
+      ],
+      "@utils/*": [
+        "utils/*"
+      ],
+      "@enums/*": [
+        "enums/*"
       ]
     },
     "target": "es5",
