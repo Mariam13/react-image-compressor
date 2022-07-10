@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "axios";
 import Card from "react-bootstrap/Card";
 import imageCompression from "browser-image-compression";
 
@@ -8,6 +7,7 @@ import type {
   IImageState,
   IImageOptions,
 } from "@interfaces/IImageCompressor";
+import transferFile from "@helpers/file-transfer-helper";
 
 export default class ImageCompressor extends React.Component<
   IImageProps,
@@ -27,26 +27,6 @@ export default class ImageCompressor extends React.Component<
       clicked: false,
       uploadImage: false,
     };
-  }
-
-  private async transferFile(file: File): Promise<void> {
-    const formData: FormData = new FormData();
-    formData.append("file", file);
-    formData.append("name", file.name);
-    formData.append("type", file.type);
-    const result = await axios.post<{ url: string }>(
-      "/api/s3/upload",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    this.setState({
-      compressedLink: result.data.url,
-    } as IImageState);
-    this.setState({ clicked: true } as IImageState);
   }
 
   public handle(e: HTMLInputElement) {
@@ -74,11 +54,16 @@ export default class ImageCompressor extends React.Component<
     }
 
     try {
-      const file: File = await imageCompression(
-        this.state.originalImage,
-        options
-      );
-      this.transferFile(file);
+      const original: File = this.state.originalImage;
+      const file: File = await imageCompression(original, options);
+      const urls: string[] = await Promise.all([
+        transferFile(original),
+        transferFile(file, `compressed-${file.name}`),
+      ]);
+      this.setState({
+        compressedLink: urls[1],
+      } as IImageState);
+      this.setState({ clicked: true } as IImageState);
     } catch (err) {
       alert(err);
     }

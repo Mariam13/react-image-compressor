@@ -10,7 +10,22 @@ const s3: S3 = new S3({
   secretAccessKey: process.env.AWS_S3_SECRET_ACCESS_KEY,
 });
 
+/**
+ * Class to handle S3 attachment upload
+ *
+ * @extends class - ApiMethod
+ *
+ */
 class S3Upload extends ApiMethod {
+  /**
+   * Private function to upload file directly to S3
+   *
+   * @param name { string } - file name
+   * @param type { string } - file type
+   * @param file { Buffer } - buffer of the file
+   *
+   * @return Promise<ManagedUpload.SendData>
+   */
   private static saveToS3(
     name: string,
     type: string,
@@ -33,6 +48,13 @@ class S3Upload extends ApiMethod {
     });
   }
 
+  /**
+   * Function to handle and upload file directly to S3
+   *
+   * @body { IAttachmentResult } - attachment data
+   *
+   * @return { url: string } - Via promise
+   */
   protected async post(): Promise<void> {
     try {
       const body: IAttachmentResult = await getFiles(this.req);
@@ -44,16 +66,29 @@ class S3Upload extends ApiMethod {
       );
       this.res.status(200).json({ url: data.Location });
     } catch (err) {
-      this.res.status(400).json({ message: err });
+      this.res.status(400).json({ message: err.message });
     }
   }
 }
 
+/**
+ * Function to handle request via request method
+ *
+ * @param req { NextApiRequest } - request
+ * @param res { NextApiResponse } - response
+ *
+ * @void
+ */
 const handler = (req: NextApiRequest, res: NextApiResponse) => {
   const s3Upload: S3Upload = new S3Upload(req, res);
   s3Upload.handleRequest();
 };
 
+/**
+ * Api configs
+ *
+ * bodyParser disabled to allow pure file transfer
+ */
 export const config = {
   api: {
     bodyParser: false,
